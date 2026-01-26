@@ -1,0 +1,31 @@
+# 历史记录
+.history/
+
+# IDE 和编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 依赖
+node_modules/
+package-lock.json
+yarn.lock
+
+# 构建文件
+dist/
+build/
+*.o
+*.a
+
+# 日志
+logs/
+*.log
+npm-debug.log*
+
+# 系统文件
+Thumbs.db
+.env.local
+.env.*.local
