@@ -3,95 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>高级 Todo App</title>
+    <title>高级 Todo App - 多用户版</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="stars"></div>
-    <div class="container">
-        <div class="todo-app">
-            <div class="app-header">
-                <div class="header-content">
-                    <h1 class="app-title">✨ 任务清单 ✨</h1>
-                    <p class="subtitle">完成每一项，成就更好的自己</p>
-                </div>
-                <div class="theme-toggle" id="themeToggle">
-                    <span>🌙</span>
-                </div>
-            </div>
-            
-            <div class="input-container">
-                <div class="input-wrapper">
-                    <span class="input-icon">📌</span>
-                    <input 
-                        type="text" 
-                        id="todoInput" 
-                        placeholder="输入一个新的任务..." 
-                        class="todo-input"
-                    >
-                </div>
-                <button id="addBtn" class="add-btn">
-                    <span>➕</span>
-                    <span>添加</span>
-                </button>
+    
+    <!-- 认证页面 -->
+    <div id="authPage" class="page">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h1>✨ 任务清单 ✨</h1>
+                <p>完成每一项，成就更好的自己</p>
             </div>
 
-            <div class="filter-container">
-                <button class="filter-btn active" data-filter="all">
-                    <span class="filter-icon">📋</span>
-                    <span>全部</span>
-                </button>
-                <button class="filter-btn" data-filter="active">
-                    <span class="filter-icon">⚡</span>
-                    <span>进行中</span>
-                </button>
-                <button class="filter-btn" data-filter="completed">
-                    <span class="filter-icon">✅</span>
-                    <span>已完成</span>
-                </button>
+            <!-- 登录表单 -->
+            <div id="loginForm" class="auth-form">
+                <h2>登录</h2>
+                <div class="form-group">
+                    <label for="loginUsername">用户名或邮箱</label>
+                    <input type="text" id="loginUsername" placeholder="输入用户名或邮箱" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">密码</label>
+                    <input type="password" id="loginPassword" placeholder="输入密码" class="form-input">
+                </div>
+                <button id="loginBtn" class="auth-button">登录</button>
+                <p class="form-switch">没有账户？<a href="#" onclick="switchToRegister()">立即注册</a></p>
             </div>
 
-            <div class="stats-container">
-                <div class="stat-card">
-                    <span class="stat-label">总数</span>
-                    <span class="stat-value" id="totalCount">0</span>
+            <!-- 注册表单 -->
+            <div id="registerForm" class="auth-form hidden">
+                <h2>注册新账户</h2>
+                <div class="form-group">
+                    <label for="registerUsername">用户名</label>
+                    <input type="text" id="registerUsername" placeholder="输入用户名" class="form-input">
                 </div>
-                <div class="stat-card">
-                    <span class="stat-label">进行中</span>
-                    <span class="stat-value" id="activeCount">0</span>
+                <div class="form-group">
+                    <label for="registerEmail">邮箱</label>
+                    <input type="email" id="registerEmail" placeholder="输入邮箱地址" class="form-input">
                 </div>
-                <div class="stat-card">
-                    <span class="stat-label">已完成</span>
-                    <span class="stat-value completed" id="completedCount">0</span>
+                <div class="form-group">
+                    <label for="registerPassword">密码</label>
+                    <input type="password" id="registerPassword" placeholder="至少6个字符" class="form-input">
                 </div>
-                <div class="stat-card progress-card">
-                    <span class="stat-label">完成度</span>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                    <span class="stat-value" id="progressPercent">0%</span>
-                </div>
-            </div>
-
-            <ul id="todoList" class="todo-list">
-                <!-- Todo items will be added here -->
-            </ul>
-
-            <div class="empty-state" id="emptyState">
-                <div class="empty-icon">🎉</div>
-                <p class="empty-text">恭喜！还没有任何待办事项</p>
-                <p class="empty-subtext">开始添加一个新任务吧！</p>
-            </div>
-
-            <div class="action-buttons">
-                <button id="clearBtn" class="clear-btn">
-                    <span>🗑️</span>
-                    <span>清除已完成</span>
-                </button>
+                <button id="registerBtn" class="auth-button">注册</button>
+                <p class="form-switch">已有账户？<a href="#" onclick="switchToLogin()">立即登录</a></p>
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- TODO应用页面 -->
+    <div id="appPage" class="page hidden">
+        <div class="container">
+            <div class="todo-app">
+                <!-- 用户菜单 -->
+                <div class="user-menu">
+                    <span id="userDisplay" class="user-display"></span>
+                    <button id="logoutBtn" class="logout-btn">登出</button>
+                </div>
+
+                <div class="app-header">
+                    <div class="header-content">
+                        <h1 class="app-title">✨ 任务清单 ✨</h1>
+                        <p class="subtitle">完成每一项，成就更好的自己</p>
+                    </div>
+                    <div class="theme-toggle" id="themeToggle">
+                        <span>🌙</span>
+                    </div>
+                </div>
+                
+                <div class="input-container">
+                    <div class="input-wrapper">
+                        <span class="input-icon">📌</span>
+                        <input 
+                            type="text" 
+                            id="todoInput" 
+                            placeholder="输入一个新的任务..." 
+                            class="todo-input"
+                        >
+                    </div>
+                    <button id="addBtn" class="add-btn">
+                        <span>➕</span>
+                        <span>添加</span>
+                    </button>
+                </div>
+
+                <div class="filter-container">
+                    <button class="filter-btn active" data-filter="all">
+                        <span class="filter-icon">📋</span>
+                        <span>全部</span>
+                    </button>
+                    <button class="filter-btn" data-filter="active">
+                        <span class="filter-icon">⚡</span>
+                        <span>进行中</span>
+                    </button>
+                    <button class="filter-btn" data-filter="completed">
+                        <span class="filter-icon">✅</span>
+                        <span>已完成</span>
+                    </button>
+                </div>
+
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <span class="stat-label">总数</span>
+                        <span class="stat-value" id="totalCount">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">进行中</span>
+                        <span class="stat-value" id="activeCount">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">已完成</span>
+                        <span class="stat-value completed" id="completedCount">0</span>
+                    </div>
+                    <div class="stat-card progress-card">
+                        <span class="stat-label">完成度</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <span class="stat-value" id="progressPercent">0%</span>
+                    </div>
+                </div>
+
+                <ul id="todoList" class="todo-list">
+                    <!-- Todo items will be added here -->
+                </ul>
+
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">🎉</div>
+                    <p class="empty-text">恭喜！还没有任何待办事项</p>
+                    <p class="empty-subtext">开始添加一个新任务吧！</p>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="clearBtn" class="clear-btn">
+                        <span>🗑️</span>
+                        <span>清除已完成</span>
+                    </button>
+                    <button id="syncBtn" class="sync-btn">
+                        <span>🔄</span>
+                        <span>同步</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知 -->
+    <div id="notification" class="notification"></div>
+
+    <script src="app.js"></script>
 </body>
 </html>
