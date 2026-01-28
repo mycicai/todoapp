@@ -10,7 +10,7 @@ services:
       PORT: 3000
       JWT_SECRET: ${JWT_SECRET:-your-secret-key-2026}
     volumes:
-      - ./app.db:/app/app.db
+      - app-data:/app
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
@@ -30,3 +30,6 @@ services:
     depends_on:
       - app
     restart: unless-stopped
+
+volumes:
+  app-data:
