@@ -16,6 +16,9 @@ COPY index.html .
 COPY style.css .
 COPY app.js .
 
+# 创建数据目录
+RUN mkdir -p /app/data
+
 EXPOSE 3000
 
 ENV NODE_ENV=production

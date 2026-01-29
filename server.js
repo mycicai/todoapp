@@ -10,7 +10,7 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-const DB_PATH = path.join(__dirname, 'app.db');
+const DB_PATH = path.join(__dirname, 'data', 'app.db');
 
 app.use(express.json());
 app.use(cors());
