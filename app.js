@@ -83,15 +83,26 @@ async function handleLogin() {
   }
 
   try {
+    // 先清除旧用户数据
+    clearUserState();
+    
     const result = await apiCall('/auth/login', 'POST', { username, password });
     appState.token = result.token;
     appState.user = result.user;
     localStorage.setItem('token', result.token);
-    showNotification('登录成功', 'success');
+    
+    // 显示页面并更新用户信息
     showAppPage();
-    initApp();
-    clearLoginForm();
+    displayUserInfo();
+    
+    // 加载新用户的 todos
+    await loadTodos();
+    
+    // 订阅实时更新
     subscribeToStream();
+    
+    showNotification('登录成功', 'success');
+    clearLoginForm();
   } catch (error) {
     showNotification(error.message, 'error');
   }
@@ -122,6 +133,26 @@ async function handleRegister() {
   }
 }
 
+// 清除用户状态（用于登出和切换用户）
+function clearUserState() {
+  // 关闭 SSE 连接
+  if (appState.eventSource) {
+    try { appState.eventSource.close(); } catch (e) { }
+    appState.eventSource = null;
+  }
+  
+  // 清除状态
+  appState.token = null;
+  appState.user = null;
+  appState.todos = [];
+  
+  // 清除 UI
+  const todoList = document.getElementById('todoList');
+  if (todoList) todoList.innerHTML = '';
+  const userDisplay = document.getElementById('userDisplay');
+  if (userDisplay) userDisplay.textContent = '';
+}
+
 async function handleLogout() {
   try {
     await apiCall('/auth/logout', 'POST');
@@ -129,14 +160,7 @@ async function handleLogout() {
     console.error('登出失败:', error);
   }
 
-  if (appState.eventSource) {
-    try { appState.eventSource.close(); } catch (e) { }
-    appState.eventSource = null;
-  }
-
-  appState.token = null;
-  appState.user = null;
-  appState.todos = [];
+  clearUserState();
   localStorage.removeItem('token');
   showAuthPage();
   switchToLogin();
@@ -372,7 +396,13 @@ async function displayUserInfo() {
 
 // ============ 事件监听 ============
 
+let appInitialized = false;
+
 function initApp() {
+  // 防止重复初始化事件监听器
+  if (appInitialized) return;
+  appInitialized = true;
+  
   // 认证事件
   document.getElementById('loginBtn').addEventListener('click', handleLogin);
   document.getElementById('registerBtn').addEventListener('click', handleRegister);
@@ -404,28 +434,32 @@ function initApp() {
 // ============ 初始化 ============
 
 async function checkAuth() {
+  // 初始化事件监听器（只执行一次）
+  initApp();
+  applyTheme();
+  
   if (appState.token) {
     try {
+      // 先清除可能存在的旧状态
+      appState.todos = [];
+      
       const user = await apiCall('/auth/me');
       appState.user = user;
       showAppPage();
       displayUserInfo();
-      initApp();
-          applyTheme();
-      loadTodos();
+      
+      // 加载当前用户的 todos
+      await loadTodos();
+      
       // 订阅实时更新
       subscribeToStream();
-      // 定期同步（每30秒）
-      setInterval(loadTodos, 30000);
     } catch (error) {
-      showAuthPage();
+      clearUserState();
       localStorage.removeItem('token');
-      appState.token = null;
+      showAuthPage();
     }
   } else {
     showAuthPage();
-    initApp();
-    applyTheme();
   }
 }
 
